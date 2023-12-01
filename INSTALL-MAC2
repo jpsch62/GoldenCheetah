@@ -1,0 +1,123 @@
+# Installation on macOS Ventura running on Apple Silicon
+
+## Installation of dependencies with MacPorts
+
+    sudo port install R
+    sudo port install qt5
+    sudo port install qt5-docs
+    sudo port install qt5-qtwebengine
+    sudo port install qt5-qtcharts
+    sudo port install gsl
+    sudo port install bison
+    sudo port install flex
+    sudo port install zlib
+
+## Adapting `gcconfig.pri`
+
+    diff --git a/src/gcconfig.pri.in b/src/gcconfig.pri
+    index 4acc6d42b..eab41e9a1 100644
+    --- a/src/gcconfig.pri.in
+    +++ b/src/gcconfig.pri
+    @@ -2,18 +2,18 @@
+    
+    # You can define the name of the executable file here.
+    # If you do not specify anything then we default to: GoldenCheetah
+    -#APP_NAME = 
+    +APP_NAME = GoldenCheetahTest
+    
+    # We recommend a debug build for development and a release build for deployment
+    #CONFIG += debug
+    -#CONFIG += release
+    +CONFIG += release
+    
+    # uncomment below and configure the location of the GNU scientific library,
+    # this is a mandatory dependency.
+    #
+    # Linux/Mac - use apt/homebrew to install and edit to your install location
+    -#GSL_INCLUDES = /usr/include
+    -#GSL_LIBS = -lgsl -lgslcblas -lm
+    +GSL_INCLUDES = /opt/local/include
+    +GSL_LIBS = -L/opt/local/lib -lgsl -lgslcblas -lm
+    #
+    # Windows - use vcpkg to install and edit to your install location
+    #GSL_INCLUDES = c:\vcpkg\installed\x64-windows\include
+    @@ -23,7 +23,7 @@
+    # You will need R installed along with the Rcpp and RInside
+    # packages. There is an R script in the `util' directory that
+    # can be run to install these packages; see it for more info.
+    -#DEFINES += GC_WANT_R
+    +DEFINES += GC_WANT_R
+    
+    # Uncomment below if you want Python charting / ML etc
+    # You will need Python Development tools installed
+    @@ -54,7 +54,7 @@
+    
+    # Global conf file name: If you'd like to use a different global config file
+    # name than the default (e.g. for testing purposes), set it here.
+    -#DEFINES += GC_SETTINGS_APP=\\\"GoldenCheetahTest\\\"
+    +DEFINES += GC_SETTINGS_APP=\\\"GoldenCheetahTest\\\"
+    
+    # If you want a console window to appear on Windows machines
+    # then uncomment the following two lines.
+    @@ -64,7 +64,7 @@
+    # To compile translation you need QT tool - lrelease
+    # If it is not found using he defaults in src/src.pro
+    # then set the full path and filename here.
+    -#QMAKE_LRELEASE = /usr/bin/lrelease
+    +QMAKE_LRELEASE = lrelease
+    
+    # MSVC needs the WINDOWS KIT libraries for the memory model you are building
+    #WINKIT_INSTALL= "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64"
+    @@ -75,10 +75,10 @@
+    
+    # Let us know where flex and bison are installed.
+    # You may need to specify the full path if things don't work.
+    -#QMAKE_LEX  = flex
+    -#QMAKE_YACC = bison
+    +QMAKE_LEX  = flex
+    +QMAKE_YACC = bison
+    # If you are using bison 3.7 or higher, uncomment the line below
+    -#QMAKE_MOVE = cp
+    +QMAKE_MOVE = cp
+    # If you're compiling with nmake and VC then you
+    # will likely also use win_flex and win_bison
+    # so uncomment below
+    @@ -217,8 +217,8 @@
+    # then you should comment the line below, otherwise you
+    # will need to have the compress libraries installed
+    # separately. 
+    -#LIBZ_INCLUDE =
+    -#LIBZ_LIBS    = -lz
+    +LIBZ_INCLUDE = /opt/local/include
+    +LIBZ_LIBS    = -lz
+    
+    macx {
+        # Uncomment this line to build with OS X Tiger support on a Leopard system:
+    @@ -228,7 +228,7 @@ macx {
+        #CONFIG+=x86 ppc
+    
+        # Uncomment this line if you have SDK 10.7 or higher
+    -    #DEFINES += GC_HAVE_LION
+    +    DEFINES += GC_HAVE_LION
+    
+        #uncomment below if you are running on the 10.9 developer preview
+        #INCLUDEPATH += /Library/Developer/CommandLineTools/SDKs/MacOSX10.9.sdk/usr/include/ 
+
+# Correcting `compiler.h`
+
+    diff --git a/contrib/levmar/compiler.h b/contrib/levmar/compiler.h
+    index 16611ac7b..59e3b5ac9 100644
+    --- a/contrib/levmar/compiler.h
+    +++ b/contrib/levmar/compiler.h
+    @@ -33,9 +33,9 @@
+    #ifdef _MSC_VER
+    #define LM_FINITE _finite // MSVC
+    #elif defined(__ICC) || defined(__INTEL_COMPILER) || defined(__GNUC__)
+    -#define LM_FINITE finite // ICC, GCC
+    +#define LM_FINITE isfinite // ICC, GCC
+    #else
+    -#define LM_FINITE finite // other than MSVC, ICC, GCC, let's hope this will work
+    +#define LM_FINITE isfinite // other than MSVC, ICC, GCC, let's hope this will work
+    #endif
+    
+    #ifdef _MSC_VER
