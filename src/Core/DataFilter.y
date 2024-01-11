@@ -49,6 +49,10 @@ extern Leaf *DataFilterroot; // root node for parsed statement
 
 %}
 
+// Set name of included header to cope with qmake renaming
+
+%define api.header.include {"DataFilter_yacc.h"}
+
 // Symbol can be meta, metric, variable or function name
 %token <string> SYMBOL PYTHON
 
